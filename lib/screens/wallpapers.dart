@@ -43,35 +43,26 @@ class _WallPapersState extends State<WallPapers> {
               crossAxisCount: size.width > 1020 ? 10 : 2),
           itemCount: finalData.length,
           itemBuilder: (context, item) {
-            return Column(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Text('ID:${finalData[item].id.toString()}'),
-                ),
-                Expanded(
-                  flex: 10,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return WallpaperView(
-                                imageURL: finalData[item].largeImageURL);
-                          },
-                        ),
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return WallpaperView(
+                        imageURL: finalData[item].largeImageURL,
+                        viewCount: finalData[item].views,
+                        likecount: finalData[item].likes,
+                        downloadCount: finalData[item].downloads,
                       );
                     },
-                    child: Image(
-                      width: 200,
-                      height: 400,
-                      fit: BoxFit.contain,
-                      image: NetworkImage(finalData[item].previewURL),
-                    ),
                   ),
-                )
-              ],
+                );
+              },
+              child: Image(
+                fit: BoxFit.cover,
+                image: NetworkImage(finalData[item].previewURL),
+              ),
             );
           },
         ),

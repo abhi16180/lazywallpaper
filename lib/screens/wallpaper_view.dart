@@ -3,12 +3,20 @@ import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:ext_storage/ext_storage.dart';
 import 'package:get/get.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lazywall/widgets/icon_widget.dart';
 
 class WallpaperView extends StatefulWidget {
   final String imageURL;
+  final int viewCount;
+  final int likecount;
+  final int downloadCount;
   const WallpaperView({
     Key? key,
     required this.imageURL,
+    required this.viewCount,
+    required this.likecount,
+    required this.downloadCount,
   }) : super(key: key);
 
   @override
@@ -16,13 +24,13 @@ class WallpaperView extends StatefulWidget {
 }
 
 class _WallpaperViewState extends State<WallpaperView> {
-  var dio = Dio();
-  String t = "download";
-  var progress = 0.0.obs;
   Progress controller = Get.put(Progress());
   @override
   Widget build(BuildContext context) {
+    controller.progress.value = 0.0;
+    controller.isDownloaded.value = false;
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Image'),
       ),
@@ -30,7 +38,7 @@ class _WallpaperViewState extends State<WallpaperView> {
         child: Column(
           children: [
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Image.network(
                 widget.imageURL,
                 loadingBuilder: (context, child, loading) {
@@ -50,39 +58,55 @@ class _WallpaperViewState extends State<WallpaperView> {
               ),
             ),
             Expanded(
-              flex: 1,
-              child: MaterialButton(
-                  onPressed: () async {
-                    await _download();
-                  },
-                  child: Obx(
-                    () => Text('${progress}'),
-                  )),
+              flex: 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconWidget(
+                        text: 'Likes',
+                        icon: FontAwesomeIcons.solidHeart,
+                        iconColor: Colors.red,
+                        count: widget.likecount,
+                      ),
+                      IconWidget(
+                        text: 'Downloads',
+                        icon: FontAwesomeIcons.fileDownload,
+                        iconColor: Colors.greenAccent,
+                        count: widget.downloadCount,
+                      ),
+                      IconWidget(
+                        text: 'Views',
+                        icon: FontAwesomeIcons.solidEye,
+                        iconColor: Colors.blue,
+                        count: widget.viewCount,
+                      ),
+                    ],
+                  ),
+                  MaterialButton(
+                    onPressed: () async {
+                      await controller.download(widget.imageURL);
+                    },
+                    child: Obx(
+                      () => Text('${controller.progress}'),
+                    ),
+                  )
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
-
-  _download() async {
-    final dio = Dio();
-    try {
-      var path = await ExtStorage.getExternalStoragePublicDirectory(
-          ExtStorage.DIRECTORY_DOWNLOADS);
-      await dio.download(widget.imageURL, "$path/img.jpg",
-          onReceiveProgress: (received, total) {
-        progress.value = (received / total * 100);
-      });
-    } catch (e) {
-      // ignore: avoid_print
-      print(e);
-    }
-  }
 }
 
 class Progress extends GetxController {
   var progress = 0.0.obs;
+  var isDownloaded = false.obs;
+
   download(String url) async {
     final dio = Dio();
     try {
@@ -91,6 +115,9 @@ class Progress extends GetxController {
       await dio.download(url, "$path/img.jpg",
           onReceiveProgress: (received, total) {
         progress.value = (received / total) * 100;
+        if (progress.value == 100) {
+          isDownloaded.value = true;
+        }
       });
     } catch (e) {
       // ignore: avoid_print
