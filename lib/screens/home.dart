@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluid_bottom_nav_bar/fluid_bottom_nav_bar.dart';
 import 'package:lazywall/screens/wallpapers.dart';
 import 'package:lazywall/screens/about.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class _HomeState extends State<Home> {
   late Widget _child;
   @override
   void initState() {
+    requestPermission();
     super.initState();
     _child = const WallPapers();
   }
@@ -56,5 +58,10 @@ class _HomeState extends State<Home> {
         child: _child,
       );
     });
+  }
+
+  requestPermission() async {
+    var status =
+        await PermissionHandler().requestPermissions([PermissionGroup.storage]);
   }
 }

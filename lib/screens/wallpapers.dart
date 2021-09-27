@@ -1,9 +1,8 @@
-import 'dart:convert' as convert;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:lazywall/model/wallpapermodel.dart';
 import 'package:lazywall/screens/wallpaper_view.dart';
+import 'package:dio/dio.dart';
 
 class WallPapers extends StatefulWidget {
   const WallPapers({Key? key}) : super(key: key);
@@ -12,14 +11,14 @@ class WallPapers extends StatefulWidget {
   _WallPapersState createState() => _WallPapersState();
 }
 
+RefreshController refreshController = RefreshController(initialRefresh: true);
+
 class _WallPapersState extends State<WallPapers> {
-  final client = http.Client();
   List finalData = [];
   int page = 1;
-
   bool isLoading = false;
   RefreshController refreshController = RefreshController(initialRefresh: true);
-
+  final dio = Dio();
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -85,20 +84,18 @@ class _WallPapersState extends State<WallPapers> {
     if (isRefresh) {
       page = 1;
     } else {
-      if (page >= 100) {
+      if (page >= 500) {
         refreshController.loadNoData();
         return false;
       }
     }
-    print('called');
-    final response = await client.get(
-      Uri.parse(
-          'https://pixabay.com/api/?key=23566879-c93c4d47c3633866a8b592216&'
-          '&page=$page'),
-    );
+
+    final response = await dio
+        .get('https://pixabay.com/api/?key=23566879-c93c4d47c3633866a8b592216&'
+            '&page=$page');
+
     if (response.statusCode == 200) {
-      var data = convert.jsonDecode(response.body) as Map<dynamic, dynamic>;
-      List listData = data['hits'] as List;
+      List listData = response.data['hits'] as List;
 
       if (isRefresh) {
         finalData = listData.map((e) => WallPaperModel.fromJson(e)).toList();
@@ -106,7 +103,6 @@ class _WallPapersState extends State<WallPapers> {
         finalData
             .addAll(listData.map((e) => WallPaperModel.fromJson(e)).toList());
       }
-
       page++;
       setState(() {});
       return true;

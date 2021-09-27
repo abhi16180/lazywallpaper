@@ -8,7 +8,7 @@ class WallPaperModel {
   factory WallPaperModel.fromJson(Map<String, dynamic> json) {
     return WallPaperModel(
         id: json['id'],
-        previewURL: json['previewURL'],
+        previewURL: json['webformatURL'],
         largeImageURL: json['largeImageURL']);
   }
 }
