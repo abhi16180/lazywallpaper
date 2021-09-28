@@ -1,3 +1,5 @@
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:lazywall/model/wallpapermodel.dart';
@@ -25,6 +27,11 @@ class _WallPapersState extends State<WallPapers> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Wallpapers'),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: [Colors.greenAccent, Colors.blue]),
+          ),
+        ),
       ),
       body: SmartRefresher(
         controller: refreshController,
@@ -45,18 +52,13 @@ class _WallPapersState extends State<WallPapers> {
           itemBuilder: (context, item) {
             return GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return WallpaperView(
-                        id: finalData[item].id,
-                        imageURL: finalData[item].largeImageURL,
-                        viewCount: finalData[item].views,
-                        likecount: finalData[item].likes,
-                        downloadCount: finalData[item].downloads,
-                      );
-                    },
+                Get.to(
+                  WallpaperView(
+                    id: finalData[item].id,
+                    imageURL: finalData[item].largeImageURL,
+                    viewCount: finalData[item].views,
+                    likecount: finalData[item].likes,
+                    downloadCount: finalData[item].downloads,
                   ),
                 );
               },

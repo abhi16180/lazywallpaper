@@ -25,8 +25,8 @@ class _HomeState extends State<Home> {
       child: Scaffold(
         body: _child,
         bottomNavigationBar: FluidNavBar(
-          style: const FluidNavBarStyle(
-            barBackgroundColor: Colors.greenAccent,
+          style: FluidNavBarStyle(
+            barBackgroundColor: Colors.tealAccent[400],
             iconBackgroundColor: Colors.white,
             iconSelectedForegroundColor: Colors.black,
           ),

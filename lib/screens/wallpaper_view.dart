@@ -36,6 +36,11 @@ class _WallpaperViewState extends State<WallpaperView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Image'),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: [Colors.greenAccent, Colors.blue]),
+          ),
+        ),
       ),
       body: Center(
         child: Column(
@@ -63,9 +68,12 @@ class _WallpaperViewState extends State<WallpaperView> {
             Expanded(
               flex: 2,
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: LinearGradient(colors: [Colors.pink, Colors.blue]),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20)),
+                  gradient:
+                      LinearGradient(colors: [Colors.greenAccent, Colors.blue]),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -88,46 +96,59 @@ class _WallpaperViewState extends State<WallpaperView> {
                         IconWidget(
                           text: 'Views',
                           icon: FontAwesomeIcons.solidEye,
-                          iconColor: Colors.blue,
+                          iconColor: Colors.black,
                           count: widget.viewCount,
                         ),
                       ],
                     ),
                     MaterialButton(
-                      color: Colors.white.withAlpha(100),
-                      minWidth: MediaQuery.of(context).size.width / 2,
-                      height: 60,
-                      onPressed: () async {
-                        controller.buttonClickAction();
-                        await controller.download(widget.imageURL, widget.id);
-                        controller.buttonClickAction();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Downloaded,path:downloads/${widget.id}.jpg',
-                            ),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
-                      },
-                      child: Obx(
-                        () => controller.isTapped.value != true
-                            ? const Icon(Icons.download)
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                        '${controller.progress.toStringAsPrecision(2)} %'),
-                                  ),
-                                ],
+                        color: Colors.white,
+                        minWidth: MediaQuery.of(context).size.width / 2,
+                        height: 60,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        onPressed: () async {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                    title: const Text('Downloading'),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18),
+                                    ),
+                                    content: Obx(
+                                      () => SizedBox(
+                                        height: 100,
+                                        width: 200,
+                                        child: Column(
+                                          children: [
+                                            const CircularProgressIndicator(
+                                              color: Colors.greenAccent,
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                  '${controller.progress.toStringAsFixed(0)} %'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ));
+                              });
+                          await controller.download(widget.imageURL, widget.id);
+                          Get.back();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Downloaded,path:downloads/${widget.id}.jpg',
                               ),
-                      ),
-                    )
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        },
+                        child: const Icon(Icons.download))
                   ],
                 ),
               ),
