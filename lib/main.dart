@@ -5,7 +5,7 @@ import 'package:lazywall/screens/home.dart';
 void main() {
   runApp(MaterialApp(
     theme: ThemeData(
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       fontFamily: 'prod',
     ),
     home: App(),

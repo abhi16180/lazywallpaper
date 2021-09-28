@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lazywall/controllers/downloadprogress.dart';
 import 'package:lazywall/widgets/icon_widget.dart';
 
 class WallpaperView extends StatefulWidget {
@@ -11,12 +12,14 @@ class WallpaperView extends StatefulWidget {
   final int viewCount;
   final int likecount;
   final int downloadCount;
+  final int id;
   const WallpaperView({
     Key? key,
     required this.imageURL,
     required this.viewCount,
     required this.likecount,
     required this.downloadCount,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -24,13 +27,13 @@ class WallpaperView extends StatefulWidget {
 }
 
 class _WallpaperViewState extends State<WallpaperView> {
-  Progress controller = Get.put(Progress());
+  DownloadProgressController controller = Get.put(DownloadProgressController());
+
   @override
   Widget build(BuildContext context) {
     controller.progress.value = 0.0;
     controller.isDownloaded.value = false;
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Image'),
       ),
@@ -59,69 +62,79 @@ class _WallpaperViewState extends State<WallpaperView> {
             ),
             Expanded(
               flex: 2,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconWidget(
-                        text: 'Likes',
-                        icon: FontAwesomeIcons.solidHeart,
-                        iconColor: Colors.red,
-                        count: widget.likecount,
-                      ),
-                      IconWidget(
-                        text: 'Downloads',
-                        icon: FontAwesomeIcons.fileDownload,
-                        iconColor: Colors.greenAccent,
-                        count: widget.downloadCount,
-                      ),
-                      IconWidget(
-                        text: 'Views',
-                        icon: FontAwesomeIcons.solidEye,
-                        iconColor: Colors.blue,
-                        count: widget.viewCount,
-                      ),
-                    ],
-                  ),
-                  MaterialButton(
-                    onPressed: () async {
-                      await controller.download(widget.imageURL);
-                    },
-                    child: Obx(
-                      () => Text('${controller.progress}'),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(colors: [Colors.pink, Colors.blue]),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconWidget(
+                          text: 'Likes',
+                          icon: FontAwesomeIcons.solidHeart,
+                          iconColor: Colors.red,
+                          count: widget.likecount,
+                        ),
+                        IconWidget(
+                          text: 'Downloads',
+                          icon: FontAwesomeIcons.fileDownload,
+                          iconColor: Colors.greenAccent,
+                          count: widget.downloadCount,
+                        ),
+                        IconWidget(
+                          text: 'Views',
+                          icon: FontAwesomeIcons.solidEye,
+                          iconColor: Colors.blue,
+                          count: widget.viewCount,
+                        ),
+                      ],
                     ),
-                  )
-                ],
+                    MaterialButton(
+                      color: Colors.white.withAlpha(100),
+                      minWidth: MediaQuery.of(context).size.width / 2,
+                      height: 60,
+                      onPressed: () async {
+                        controller.buttonClickAction();
+                        await controller.download(widget.imageURL, widget.id);
+                        controller.buttonClickAction();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Downloaded,path:downloads/${widget.id}.jpg',
+                            ),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      child: Obx(
+                        () => controller.isTapped.value != true
+                            ? const Icon(Icons.download)
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                        '${controller.progress.toStringAsPrecision(2)} %'),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-class Progress extends GetxController {
-  var progress = 0.0.obs;
-  var isDownloaded = false.obs;
-
-  download(String url) async {
-    final dio = Dio();
-    try {
-      var path = await ExtStorage.getExternalStoragePublicDirectory(
-          ExtStorage.DIRECTORY_DOWNLOADS);
-      await dio.download(url, "$path/img.jpg",
-          onReceiveProgress: (received, total) {
-        progress.value = (received / total) * 100;
-        if (progress.value == 100) {
-          isDownloaded.value = true;
-        }
-      });
-    } catch (e) {
-      // ignore: avoid_print
-      print(e);
-    }
   }
 }

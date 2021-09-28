@@ -1,10 +1,10 @@
 class WallPaperModel {
-  final int? id;
   final String? previewURL;
   final String? largeImageURL;
   final int? views;
   final int? likes;
   final int? downloads;
+  final int? id;
 
   WallPaperModel({
     this.id,

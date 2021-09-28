@@ -50,6 +50,7 @@ class _WallPapersState extends State<WallPapers> {
                   MaterialPageRoute(
                     builder: (context) {
                       return WallpaperView(
+                        id: finalData[item].id,
                         imageURL: finalData[item].largeImageURL,
                         viewCount: finalData[item].views,
                         likecount: finalData[item].likes,
