@@ -102,53 +102,51 @@ class _WallpaperViewState extends State<WallpaperView> {
                       ],
                     ),
                     MaterialButton(
-                        color: Colors.white,
-                        minWidth: MediaQuery.of(context).size.width / 2,
-                        height: 60,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        onPressed: () async {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                    title: const Text('Downloading'),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    content: Obx(
-                                      () => SizedBox(
-                                        height: 100,
-                                        width: 200,
-                                        child: Column(
-                                          children: [
-                                            const CircularProgressIndicator(
-                                              color: Colors.greenAccent,
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                  '${controller.progress.toStringAsFixed(0)} %'),
-                                            ),
-                                          ],
-                                        ),
+                      color: Colors.white,
+                      minWidth: MediaQuery.of(context).size.width / 2,
+                      height: 60,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      onPressed: () async {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                  title: const Text('Downloading'),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  content: Obx(
+                                    () => SizedBox(
+                                      height: 100,
+                                      width: 200,
+                                      child: Column(
+                                        children: [
+                                          const CircularProgressIndicator(
+                                            color: Colors.greenAccent,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                                '${controller.progress.toStringAsFixed(0)} %'),
+                                          ),
+                                        ],
                                       ),
-                                    ));
-                              });
-                          await controller.download(widget.imageURL, widget.id);
-                          Get.back();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Downloaded,path:downloads/${widget.id}.jpg',
-                              ),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        child: const Icon(Icons.download))
+                                    ),
+                                  ));
+                            });
+                        await controller.download(widget.imageURL, widget.id);
+                        Get.back();
+                        Get.snackbar(
+                          'Downloads',
+                          'Downloaded,path:downloads/${widget.id}.jpg',
+                          backgroundColor: Colors.grey[900],
+                          colorText: Colors.white,
+                        );
+                      },
+                      child: const Icon(Icons.download),
+                    )
                   ],
                 ),
               ),
